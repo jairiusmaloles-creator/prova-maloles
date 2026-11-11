@@ -7,7 +7,7 @@
   <title>CV - Sito personale</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-pagina="cv">
 
   <!-- MENU (uguale in tutte le pagine) -->
   <header>
@@ -15,13 +15,13 @@
       <a href="index.html">Home</a>
       <a href="cv.html">CV</a>
       <a href="stage.html">Stage</a>
-      <a href="lavori.html">Lavori</a>
-      <a href="extra.html">Extra</a>
     </nav>
   </header>
 
+
+
   <main>
-    <h1>Curriculum Vitae</h1>
+    <h1>Curriculum</h1>
 
     <!-- Messaggio mostrato solo se il caricamento del foglio fallisce -->
     <p id="messaggio-errore" hidden></p>
@@ -29,19 +29,19 @@
     <!-- Righe "dati" del foglio -->
     <section>
       <h2>Informazioni personali</h2>
-      <div id="lista-dati"></div>
+      <div id="cv-dati"></div>
     </section>
 
     <!-- Righe "istruzione" del foglio -->
     <section>
       <h2>Istruzione</h2>
-      <div id="lista-istruzione"></div>
+      <div id="cv-istruzione"></div>
     </section>
 
     <!-- Righe "esperienza" del foglio -->
     <section>
       <h2>Esperienze di lavoro</h2>
-      <div id="lista-esperienze"></div>
+      <div id="cv-esperienze"></div>
     </section>
   </main>
 
@@ -55,6 +55,6 @@
     <img src="img/logo.png" alt="Logo Immaginazione e Lavoro">
   </footer>
 
-  <script src="cv.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

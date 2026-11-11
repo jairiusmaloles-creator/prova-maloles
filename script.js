@@ -1,5 +1,7 @@
-// Link CSV del foglio "Home" (pubblicato sul web)
+// Link CSV dei fogli (pubblicati sul web)
 const URL_HOME = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnsAH7iGxLv_j39qB5YySjDTrzeJRCSQM8FnYady_aVg1NoesO5C0prpUrDHYxJLLA7WABmF3Memr/pub?gid=0&single=true&output=csv";
+const URL_CV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnsAH7iGxLv_j39qB5YySjDTrzeJRCSQM8FnYady_aVg1NoesO5C0prpUrDHYxJLLA7WABmF3Memr/pub?gid=251364683&single=true&output=csv";
+const URL_STAGE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZnsAH7iGxLv_j39qB5YySjDTrzeJRCSQM8FnYady_aVg1NoesO5C0prpUrDHYxJLLA7WABmF3Memr/pub?gid=1187600150&single=true&output=csv";
 
 // ---------- FUNZIONI RIUTILIZZABILI (valgono per ogni pagina) ----------
 
@@ -112,12 +114,131 @@ function mostraHome(dati) {
   });
 }
 
+// ---------- RENDERING DEL CV ----------
+
+// Aggiunge un elemento alla pagina solo se la cella non è vuota
+function aggiungiSeNonVuoto(genitore, tag, classe, testo) {
+  if (!testo) return;                      // cella vuota: non faccio nulla
+  const elemento = document.createElement(tag);
+  elemento.className = classe;
+  elemento.textContent = testo;            // textContent: testo sicuro, mai HTML
+  genitore.appendChild(elemento);
+}
+
+// Informazioni personali: titolo = nome dell'informazione, testo = valore
+function mostraDatiPersonali(dati) {
+  const contenitore = document.getElementById("cv-dati");
+  dati.filter(r => r.sezione === "dati").forEach(d => {
+    if (!d.titolo || !d.testo) return;     // salto le righe incomplete
+
+    const riga = document.createElement("p");
+    riga.className = "dato";
+
+    const nome = document.createElement("strong");
+    nome.textContent = d.titolo + ": ";
+
+    const valore = document.createElement("span");
+    valore.textContent = d.testo;
+
+    riga.append(nome, valore);
+    contenitore.appendChild(riga);
+  });
+}
+
+// Istruzione ed esperienze: stessa struttura, cambia solo la sezione e il contenitore
+function mostraVoci(dati, sezione, idContenitore) {
+  const contenitore = document.getElementById(idContenitore);
+  dati.filter(r => r.sezione === sezione).forEach(v => {
+    const voce = document.createElement("div");
+    voce.className = "voce";
+
+    aggiungiSeNonVuoto(voce, "h3", "", v.titolo);
+    aggiungiSeNonVuoto(voce, "p", "sottotitolo", v.sottotitolo);
+    aggiungiSeNonVuoto(voce, "p", "periodo", v.periodo);
+    aggiungiSeNonVuoto(voce, "p", "", v.testo);
+
+    contenitore.appendChild(voce);
+  });
+}
+
+function mostraCv(dati) {
+  mostraDatiPersonali(dati);
+  mostraVoci(dati, "istruzione", "cv-istruzione");
+  mostraVoci(dati, "esperienza", "cv-esperienze");
+}
+
+// ---------- RENDERING DELLA PAGINA STAGE ----------
+
+function mostraStage(dati) {
+  const contenitore = document.getElementById("lista-stage");
+
+  // Una riga del foglio = uno stage = un blocco
+  dati.forEach(s => {
+    if (!s.azienda) return;                  // riga vuota: la salto
+
+    const blocco = document.createElement("article");
+    blocco.className = "stage";
+
+    // La card con i dati dell'azienda
+    const card = document.createElement("div");
+    card.className = "card card-stage";
+
+    // Immagine: la creo solo se la cella non è vuota
+    if (s.immagine) {
+      const img = document.createElement("img");
+      img.src = "img/" + s.immagine;         // nel foglio c'è solo il nome del file
+      img.alt = s.azienda;
+      card.appendChild(img);
+    }
+
+    // Nome dell'azienda, luogo e settore
+    aggiungiSeNonVuoto(card, "h3", "", s.azienda);
+    aggiungiSeNonVuoto(card, "p", "", s.luogo ? "Luogo: " + s.luogo : "");
+    aggiungiSeNonVuoto(card, "p", "", s.settore ? "Settore: " + s.settore : "");
+
+    // Elenco puntato: i punti nella cella sono separati da ";"
+    if (s.attivita) {
+      aggiungiSeNonVuoto(card, "h4", "", "Di cosa si occupa");
+      const elenco = document.createElement("ul");
+      s.attivita.split(";").forEach(punto => {
+        const testo = punto.trim();          // tolgo gli spazi in più
+        if (!testo) return;                  // salto i punti vuoti
+        const li = document.createElement("li");
+        li.textContent = testo;              // textContent: mai HTML
+        elenco.appendChild(li);
+      });
+      card.appendChild(elenco);
+    }
+
+    blocco.appendChild(card);
+
+    // Sotto la card: titolo "Relazione" e testo (solo se la cella non è vuota)
+    if (s.relazione) {
+      aggiungiSeNonVuoto(blocco, "h3", "", "Relazione");
+      aggiungiSeNonVuoto(blocco, "p", "relazione", s.relazione);
+    }
+
+    contenitore.appendChild(blocco);
+  });
+}
+
 // ---------- AVVIO ----------
 
 async function avvia() {
   try {
-    const dati = await leggiFoglio(URL_HOME);
-    mostraHome(dati);
+    // Leggo da <body data-pagina="..."> in quale pagina sono
+    const pagina = document.body.dataset.pagina;
+
+    if (pagina === "home") {
+      const dati = await leggiFoglio(URL_HOME);
+      mostraHome(dati);
+    } else if (pagina === "cv") {
+      const dati = await leggiFoglio(URL_CV);
+      mostraCv(dati);
+    } else if (pagina === "stage") {
+      const dati = await leggiFoglio(URL_STAGE);
+      mostraStage(dati);
+    }
   } catch (errore) {
     mostraErrore("Non riesco a caricare i contenuti. Controlla che il foglio sia pubblicato.");
     console.error(errore);

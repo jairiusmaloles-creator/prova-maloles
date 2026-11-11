@@ -120,14 +120,32 @@ footer img {
 }
 
 .voce p {
-  margin: 2px 0;
+  margin: 4px 0;
 }
 
 .sottotitolo {
-  font-style: italic;
+  font-weight: bold;
 }
 
 .periodo {
   color: #666;
   font-size: 0.9em;
+}
+
+/* Pagina Stage */
+.stage {
+  margin-bottom: 40px;
+}
+
+.card-stage {
+  margin-bottom: 16px;
+}
+
+.card-stage ul {
+  padding-left: 20px;
+}
+
+/* Mantiene gli a capo e i paragrafi scritti nella cella */
+.relazione {
+  white-space: pre-line;
 }
