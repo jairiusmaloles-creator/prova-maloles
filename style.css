@@ -1,151 +1,413 @@
-/* Stile base comune a tutte le pagine */
+/* ===== COLORI, FONT E MISURE: scritti una volta sola ===== */
+:root {
+  --carta: #f4efe6;        /* fondo color carta */
+  --inchiostro: #1c1a17;   /* quasi nero, più morbido del nero puro */
+  --accento: #b8402a;      /* rosso mattone: l'unico colore vivace */
+  --grigio: #6b655b;       /* testi secondari */
+  --linea: #cfc7b8;        /* righe sottili */
+  --carta-scura: #ebe4d6;  /* sfondo di card e footer */
+
+  /* Liste di font: il browser prova il primo, se manca passa al successivo */
+  --font-titoli: Georgia, "Times New Roman", serif;
+  --font-testo: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  line-height: 1.5;
-  color: #222;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Menu in alto */
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-testo);
+  line-height: 1.7;
+  color: var(--inchiostro);
+  background: var(--carta);
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ===== TITOLI ===== */
+h1, h2, h3 {
+  font-family: var(--font-titoli);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+/* clamp(minimo, ideale, massimo): piccolo su telefono, grande su PC */
+h1 {
+  font-size: clamp(2.4rem, 9vw, 4.5rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+h3 {
+  font-size: clamp(1.15rem, 3vw, 1.4rem);
+  margin: 0 0 6px;
+}
+
+/* Titoli di sezione: numero + testo + riga che si allunga.
+   Il numero lo conta CSS da solo (counter), non lo scrivi nell'HTML */
+main {
+  counter-reset: sezione;            /* azzera il contatore */
+}
+
+main section:not(#presentazione) h2 {
+  counter-increment: sezione;        /* +1 per ogni titolo */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 64px 0 24px;
+  font-size: 0.85rem;
+  font-family: var(--font-testo);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--grigio);
+}
+
+main section:not(#presentazione) h2::before {
+  content: "0" counter(sezione);     /* 01, 02, 03... */
+  color: var(--accento);
+}
+
+main section:not(#presentazione) h2::after {
+  content: "";
+  flex: 1;                           /* la riga occupa lo spazio che resta */
+  height: 1px;
+  background: var(--inchiostro);
+  transform-origin: left;            /* la riga cresce da sinistra */
+  animation: disegna-linea 0.9s ease-out 0.3s backwards;
+}
+
+/* ===== MENU ===== */
+header {
+  border-bottom: 2px solid var(--inchiostro);
+  background: var(--carta);
+  animation: appari 0.6s ease-out backwards;
+}
+
 nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  padding: 16px;
-  background: #222;
+  align-items: center;
+  gap: 8px 28px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 14px 16px;
+}
+
+.logo-menu {
+  height: 32px;
+  margin-right: auto;                /* spinge i link a destra */
 }
 
 nav a {
-  color: white;
+  color: var(--inchiostro);
   text-decoration: none;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;   /* riga invisibile... */
+  transition: border-color 0.2s, color 0.2s;
+}
+
+nav a:hover {
+  color: var(--accento);
+  border-bottom-color: var(--accento);    /* ...che appare al passaggio */
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 3px;
 }
 
 main {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 16px;
 }
 
-/* Presentazione: foto e testo affiancati */
+/* ===== HOME: presentazione ===== */
 #presentazione {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  flex-direction: row-reverse;       /* foto a destra, testo a sinistra */
+  gap: 48px;
   align-items: center;
+  justify-content: space-between;
+  padding: 56px 0 24px;
 }
 
+#presentazione > div {
+  flex: 1 1 300px;
+}
+
+/* La qualifica: corsivo rosso, come un sottotitolo di giornale */
+#presentazione h2 {
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  font-style: italic;
+  color: var(--accento);
+  margin: 0 0 20px;
+}
+
+#testo {
+  max-width: 55ch;                   /* righe non troppo lunghe: si legge meglio */
+  font-size: 1.05rem;
+}
+
+/* Foto rettangolare con una "cornice" staccata */
 #foto {
-  width: 200px;
-  height: 200px;
+  width: clamp(180px, 40vw, 280px);
+  aspect-ratio: 4 / 5;
   object-fit: cover;
-  border-radius: 50%;
+  outline: 1px solid var(--inchiostro);
+  outline-offset: 10px;
+  filter: grayscale(25%);            /* colori un po' spenti, effetto stampa */
 }
 
-/* Card delle passioni */
+/* ===== CARD (passioni e stage) ===== */
 #lista-passioni {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
 }
 
-.card {
-  flex: 1 1 250px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 12px;
+.card,
+.card-stage {
+  background: var(--carta-scura);
+  border-top: 3px solid var(--inchiostro);   /* solo la riga sopra */
+  padding: 18px 0 8px;
+  background: none;
+  transition: border-color 0.25s;
+}
+
+.card:hover,
+.card-stage:hover {
+  border-top-color: var(--accento);
 }
 
 .card img {
   width: 100%;
-  height: 160px;
+  height: 180px;
   object-fit: cover;
+  filter: grayscale(25%);
+  transition: filter 0.3s;
 }
 
-/* Barre delle competenze */
+.card:hover img {
+  filter: none;                      /* torna a colori al passaggio */
+}
+
+/* ===== BARRE DELLE COMPETENZE ===== */
 .competenza {
-  margin-bottom: 12px;
+  margin-bottom: 18px;
 }
 
 .barra {
-  background: #ddd;
-  height: 12px;
-  border-radius: 6px;
+  background: var(--linea);
+  height: 4px;                       /* sottile, come una riga di penna */
 }
 
 .barra-piena {
-  background: #2a6fdb;
   height: 100%;
-  border-radius: 6px;
+  background: var(--accento);
+  transition: width 1s ease;
 }
 
-/* Messaggio di errore */
+/* ===== MESSAGGIO DI ERRORE ===== */
 #messaggio-errore {
-  background: #ffd9d9;
-  padding: 12px;
-  border-radius: 6px;
+  background: #f6dcd6;
+  color: #7a2415;
+  border-left: 4px solid var(--accento);
+  padding: 14px;
 }
 
-/* Footer */
-footer {
+/* ===== PAGINA CV ===== */
+
+/* Informazioni personali: elenco con righe sottili */
+#cv-dati {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0 32px;
+}
+
+.dato {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linea);
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: #eee;
+  gap: 0 8px;
 }
 
-footer img {
-  height: 50px;
-}
-
-/* Pagina CV */
-.dato {
-  margin: 4px 0;
-}
-
+/* Istruzione ed esperienze: linea del tempo semplice */
 .voce {
-  border-left: 4px solid #2a6fdb;
-  padding-left: 12px;
-  margin-bottom: 16px;
+  position: relative;
+  margin: 0 0 0 6px;
+  padding: 0 0 32px 28px;
+  border-left: 1px solid var(--inchiostro);
 }
 
-.voce h3 {
-  margin: 0;
+.voce:last-child {
+  padding-bottom: 0;
+}
+
+/* Il segno sulla linea: un piccolo quadrato (non un pallino luminoso) */
+.voce::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 8px;
+  width: 9px;
+  height: 9px;
+  background: var(--accento);
+}
+
+/* Scuola o azienda */
+.sottotitolo {
+  font-weight: 600;
+  color: var(--accento);
 }
 
 .voce p {
-  margin: 4px 0;
+  margin: 6px 0;
+  max-width: 60ch;
 }
 
-.sottotitolo {
-  font-weight: bold;
-}
-
+/* Periodo: piccola scritta in maiuscolo */
 .periodo {
-  color: #666;
-  font-size: 0.9em;
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--grigio);
 }
 
-/* Pagina Stage */
+/* ===== PAGINA STAGE ===== */
 .stage {
   margin-bottom: 40px;
 }
 
 .card-stage {
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
 
 .card-stage ul {
   padding-left: 20px;
 }
 
-/* Mantiene gli a capo e i paragrafi scritti nella cella */
+/* Mantiene gli a capo scritti nella cella del foglio */
 .relazione {
   white-space: pre-line;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+  margin-top: 80px;
+  border-top: 2px solid var(--inchiostro);
+  color: var(--grigio);
+  font-size: 0.9rem;
+}
+
+footer p {
+  margin: 2px 0;
+}
+
+footer img {
+  height: 44px;
+}
+
+.loghi {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ===== ANIMAZIONI DI CARICAMENTO ===== */
+/* Poche e lente: l'idea è "una pagina che si stampa", non fuochi d'artificio */
+
+@keyframes appari {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sale {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes disegna-linea {
+  from { transform: scaleX(0); }     /* riga larga 0... */
+  to   { transform: scaleX(1); }     /* ...fino alla larghezza piena */
+}
+
+/* Home: prima il nome, poi la qualifica, poi il testo, infine la foto */
+#nome      { animation: sale 0.8s ease-out 0.2s backwards; }
+#qualifica { animation: sale 0.8s ease-out 0.45s backwards; }
+#testo     { animation: sale 0.8s ease-out 0.7s backwards; }
+#foto      { animation: appari 1.2s ease-out 0.9s backwards; }
+
+/* Elementi creati da JavaScript: appaiono uno dopo l'altro */
+.card,
+.card-stage,
+.competenza,
+.voce,
+.dato {
+  animation: sale 0.7s ease-out 0.4s backwards;
+}
+
+/* :is(...) evita di ripetere la lista di classi ogni volta */
+:is(.card, .card-stage, .competenza, .voce, .dato):nth-child(2) { animation-delay: 0.55s; }
+:is(.card, .card-stage, .competenza, .voce, .dato):nth-child(3) { animation-delay: 0.7s; }
+:is(.card, .card-stage, .competenza, .voce, .dato):nth-child(4) { animation-delay: 0.85s; }
+:is(.card, .card-stage, .competenza, .voce, .dato):nth-child(n+5) { animation-delay: 1s; }
+
+/* ===== SOLO TELEFONO (schermi sotto i 600px) ===== */
+@media (max-width: 600px) {
+  #presentazione {
+    gap: 40px;
+    padding-top: 32px;
+  }
+
+  .voce {
+    padding-left: 20px;
+  }
+
+  footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Chi ha attivato "riduci animazioni" nel telefono non le vede */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ===== STAMPA: CV bianco e leggibile (Ctrl+P > Salva come PDF) ===== */
+@media print {
+  body {
+    background: white;
+  }
+
+  header, footer {
+    display: none;
+  }
 }
